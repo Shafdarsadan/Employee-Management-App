@@ -19,6 +19,11 @@ public class DepartmentController {
 	        return departmentService.createDepartment(departmentEntity);
 	    }
 
+	    @PostMapping("/{id}/{empId}")
+	    public Optional<DepartmentEntity> addEmployeeToDept(@PathVariable Long id,@PathVariable Long empId) {
+		return departmentService.addEmployeeToDept(id,empId);
+	    }
+
 	    @PutMapping("/{id}")
 	    public Optional<DepartmentEntity> updateDepartment(@PathVariable Long id, @RequestBody DepartmentEntity departmentEntity) {
 	        return departmentService.updateDepartment(id, departmentEntity);

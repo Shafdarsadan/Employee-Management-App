@@ -1,9 +1,11 @@
 package com.company.employee.serviceimplementation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import com.company.employee.entity.EmployeeEntity;
 import com.company.employee.repository.EmployeeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import com.company.employee.repository.DepartmentRepository;
 import com.company.employee.service.DepartmentService;
 
 @Service
+@Slf4j
 public class DepartmentServiceImplmnt implements DepartmentService {
 
     @Autowired
@@ -30,27 +33,11 @@ public class DepartmentServiceImplmnt implements DepartmentService {
 
 	@Override
     public Optional<DepartmentEntity> updateDepartment(Long id, DepartmentEntity departmentEntity) {
-        return departmentRepository.findById(id).map(department -> {
-            department.setName(departmentEntity.getName());
-            department.setCreationDate(departmentEntity.getCreationDate());
-
-//            if (departmentDto.getDepartmentLead() != null) {
-//                EmployeeEntity employeeEntity = employeeRepository.findById(departmentDto.getDepartmentLead().getId()).orElse(null);
-//                departmentEntity1.setDepartmentLead(employeeEntity);
-//            }
-
-            if (departmentEntity.getEmployeeEntities() != null){
-                List<EmployeeEntity> employees = departmentEntity.getEmployeeEntities();
-                EmployeeEntity employeeEntity = employees.get(0);
-                employeeRepository.findById(employeeEntity.getId());
-               department.setEmployeeEntities((List<EmployeeEntity>) employeeEntity);
-            }
-
-//            department.setEmployeeEntities(departmentEntity.getEmployeeEntities());
-
-//          department.getEmployeeEntity().stream()
-//                    .map(employeeEntity -> employeeRepository.save(employeeEntity));
-            return departmentRepository.save(department);
+        return departmentRepository.findById(id).map(oldDept->{
+            oldDept.setName(departmentEntity.getName());
+            oldDept.setCreationDate(departmentEntity.getCreationDate());
+            oldDept.setEmployeeEntities(departmentEntity.getEmployeeEntities());
+            return departmentRepository.save(oldDept);
         });
     }
 
@@ -92,5 +79,25 @@ public class DepartmentServiceImplmnt implements DepartmentService {
         // saving the departmetn after adding the employee
         departmentRepository.save(newDepartment);
         return newDepartment;
+    }
+
+    @Override
+    public Optional<DepartmentEntity> addEmployeeToDept(Long id, Long empId) {
+        return departmentRepository.findById(id).map(departmentEntity -> {
+            List<EmployeeEntity> departmentEmployee = departmentEntity.getEmployeeEntities();
+               EmployeeEntity employee = employeeRepository.findById(empId).get();
+               if (departmentEmployee == null){
+                   departmentEmployee = new ArrayList<>();
+               }
+               if (!departmentEmployee.contains(employee)){
+                   departmentEmployee.add(employee);
+               }
+               if(departmentEmployee.contains(employee)){
+                   log.info("Already exist.....................................");
+               }
+               departmentEntity.setEmployeeEntities(departmentEmployee);
+               return departmentRepository.save(departmentEntity);
+        });
+
     }
 }

@@ -18,5 +18,5 @@ public interface DepartmentService {
 	List<DepartmentEntity> getAllDepartments();
 	Optional<DepartmentEntity> getDepartment(Long id);
 	public DepartmentEntity changeEmployee(Long id, Long employeeId);
-
+	public Optional<DepartmentEntity> addEmployeeToDept(Long id, Long empId);
 }
